@@ -24,6 +24,7 @@ const ui = {
   historyEmpty: $('#historyEmpty'),
   historyToggle: $('#historyToggle'),
   historyToggleBtn: $('#historyToggleBtn'),
+  historyToggleLabel: $('#historyToggleLabel'),
   filterDept: $('#filterDept'),
   filterManager: $('#filterManager'),
   filterSearch: $('#filterSearch'),
@@ -663,7 +664,13 @@ function renderHistory() {
   }
 
   ui.historyEmpty.classList.add('hidden');
-  const visible = historyExpanded ? historyEntries : historyEntries.slice(0, 5);
+  const sortedEntries = [...historyEntries].sort((a, b) => {
+    const ta = Date.parse(a.timestamp || '') || 0;
+    const tb = Date.parse(b.timestamp || '') || 0;
+    return tb - ta;
+  });
+
+  const visible = historyExpanded ? sortedEntries : sortedEntries.slice(0, 5);
 
   ui.historyList.innerHTML = visible
     .map((entry) => {
@@ -689,7 +696,10 @@ function renderHistory() {
 
   if (historyEntries.length > 5) {
     ui.historyToggle.classList.remove('hidden');
-    ui.historyToggleBtn.textContent = historyExpanded ? 'Zwiń historię' : 'Pokaż całą historię';
+    ui.historyToggleLabel.textContent = historyExpanded
+      ? 'Zwiń historię do 5 ostatnich wpisów'
+      : `Pokaż wszystkie wpisy (${historyEntries.length})`;
+    ui.historyToggleBtn.textContent = historyExpanded ? '⬆' : '⬇';
   } else {
     ui.historyToggle.classList.add('hidden');
   }

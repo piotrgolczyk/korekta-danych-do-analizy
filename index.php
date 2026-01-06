@@ -125,7 +125,10 @@ declare(strict_types=1);
           <div id="historyEmpty" class="empty hidden">Brak zapisanej historii zmian.</div>
           <ul id="historyList" class="history-list"></ul>
           <div id="historyToggle" class="history-toggle hidden">
-            <button class="btn" id="historyToggleBtn" type="button">Pokaż całą historię</button>
+            <div class="history-toggle-line">
+              <span id="historyToggleLabel">Pokaż więcej zmian</span>
+              <button id="historyToggleBtn" type="button">⬇</button>
+            </div>
           </div>
         </div>
       </div>
