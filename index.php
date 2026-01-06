@@ -20,7 +20,6 @@ declare(strict_types=1);
     <section class="card" id="loginView">
       <div class="login-card">
         <h2>Wprowadź hasło</h2>
-        <p>Hasło jest ukryte w nazwie pliku JSON w katalogu <strong>data-to-fix</strong>.</p>
         <form id="loginForm">
           <div class="field">
             <label for="passwordInput">Hasło dostępu</label>
@@ -37,7 +36,7 @@ declare(strict_types=1);
     <section class="card hidden" id="loadingView">
       <div class="loading-screen">
         <strong>Witaj w systemie do poprawy danych organizacji</strong>
-        <div>Trwa wczytywanie pliku JSON, proszę czekać...</div>
+        <div>Trwa wczytywanie danych, proszę czekać...</div>
         <div class="progress" aria-label="Wczytywanie"></div>
       </div>
     </section>

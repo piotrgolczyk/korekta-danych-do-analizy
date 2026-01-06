@@ -59,10 +59,6 @@ function find_file_by_password(string $password): array
         return [null, 'Nieprawidłowe hasło. Skontaktuj się z administratorem.'];
     }
 
-    if (count($matches) > 1) {
-        return [null, 'Hasło pasuje do więcej niż jednego pliku. Skontaktuj się z administratorem.'];
-    }
-
     return [$matches[0], null];
 }
 
@@ -99,7 +95,7 @@ function history_path(string $dataPath): string
     $dir = dirname($dataPath);
     $base = pathinfo($dataPath, PATHINFO_FILENAME);
 
-    return $dir . '/' . $base . '.changes.json';
+    return $dir . '/' . $base . '.changes.txt';
 }
 
 function load_history(string $dataPath): array
