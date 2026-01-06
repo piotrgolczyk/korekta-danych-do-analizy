@@ -1,0 +1,1277 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Uzupełnianie struktury organizacji</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --accent:#2563eb;
+      --accent2:#1d4ed8;
+      --danger:#ef4444;
+      --changed: rgba(239, 68, 68, 0.10);
+      --shadow: 0 14px 30px rgba(2,6,23,.10);
+      --radius: 16px;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background:
+        radial-gradient(900px 520px at 20% 0%, rgba(37,99,235,.12), transparent 60%),
+        radial-gradient(900px 520px at 80% 10%, rgba(99,102,241,.10), transparent 60%),
+        var(--bg);
+      color: var(--text);
+    }
+    .wrap{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 16px 40px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+      align-items:center;
+    }
+    header{
+      width:100%;
+      text-align:center;
+      padding: 8px 0 2px;
+    }
+    .company{
+      margin: 0;
+      font-size: clamp(26px, 3.8vw, 46px);
+      letter-spacing: .2px;
+      font-weight: 900;
+    }
+    .title{
+      margin: 10px 0 0;
+      font-size: clamp(16px, 2.1vw, 22px);
+      color: var(--muted);
+      font-weight: 750;
+    }
+
+    .card{
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .topbar{
+      display:flex;
+      gap: 12px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space:nowrap;
+    }
+    .pill strong{ color: var(--text); }
+
+    .btn{
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor:pointer;
+      transition: transform .06s ease, background .15s ease, border-color .15s ease;
+      font-weight: 800;
+      letter-spacing:.2px;
+    }
+    .btn:hover{ background: #eef2ff; border-color: #c7d2fe; }
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{
+      background: rgba(37,99,235,.10);
+      border-color: rgba(37,99,235,.22);
+      color: var(--accent2);
+    }
+    .btn.primary:hover{
+      background: rgba(37,99,235,.14);
+      border-color: rgba(37,99,235,.30);
+    }
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none !important;
+      background: #f1f5f9;
+      border-color: var(--line);
+      color: #64748b;
+    }
+
+    .divider{
+      height:1px;
+      background: var(--line);
+      margin: 12px 0;
+    }
+
+    .smallGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (min-width: 980px){
+      .smallGrid{ grid-template-columns: 1fr 1fr; }
+    }
+
+    .miniCard{
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fbfdff;
+      padding: 12px;
+    }
+    .miniCard h3{
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing:.2px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+    .metrics{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+    }
+    .metric{
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background:#ffffff;
+    }
+    .metric .k{
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+    .metric .v{
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing:.2px;
+    }
+    .errors{
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+    }
+    .errRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background:#ffffff;
+      color: var(--text);
+    }
+    .errRow .left{
+      color: var(--muted);
+      font-weight: 750;
+      font-size: 13px;
+    }
+    .errRow .right{
+      font-weight: 900;
+      font-size: 15px;
+    }
+
+    .filters{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      align-items:flex-end;
+      justify-content:space-between;
+      margin-top: 12px;
+    }
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+      min-width: 220px;
+      flex: 1 1 220px;
+    }
+    .field label{
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing:.2px;
+      font-weight: 800;
+    }
+    select, input[type="text"], input[type="date"]{
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      color: var(--text);
+      outline:none;
+    }
+    select:focus, input[type="text"]:focus, input[type="date"]:focus{
+      border-color: rgba(37,99,235,.55);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+    }
+    input::placeholder{ color: rgba(71,85,105,.65); }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 13px;
+      white-space:nowrap;
+      font-weight: 750;
+    }
+    .toggle input{ transform: scale(1.1); }
+
+    .tableWrap{
+      overflow:auto;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      margin-top: 12px;
+    }
+    table{
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1040px;
+    }
+    thead th{
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line);
+      padding: 12px 10px;
+      text-align:left;
+      font-size: 12px;
+      color: var(--muted);
+      user-select:none;
+      cursor:pointer;
+      white-space:nowrap;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing:.3px;
+    }
+    thead th .sort{
+      opacity:.75;
+      font-size: 11px;
+      margin-left:6px;
+      text-transform:none;
+      letter-spacing:0;
+      font-weight:800;
+    }
+    tbody td{
+      border-top: 1px solid var(--line);
+      padding: 10px;
+      vertical-align: middle;
+      font-size: 14px;
+    }
+    tbody tr:hover td{ background: #f8fafc; }
+    tbody tr.changed td{ background: var(--changed); }
+
+    .nowrap{ white-space:nowrap; }
+    .mini{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height:1.25;
+    }
+    .inline{
+      display:flex;
+      gap: 8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .calendarBtn{
+      width: 44px;
+      min-width: 44px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: var(--text);
+      cursor:pointer;
+      font-weight:900;
+    }
+    .calendarBtn:hover{ background:#eef2ff; border-color:#c7d2fe; }
+
+    .tenureBadge{
+      display:inline-flex;
+      align-items:center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 12px;
+      white-space:nowrap;
+      font-weight: 800;
+    }
+
+    .empty{
+      width:100%;
+      text-align:center;
+      padding: 18px 10px 4px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height:1.4;
+      font-weight: 650;
+    }
+
+    .rightActions{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    /* Hidden file input + nice button */
+    #fileInput{ display:none; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <h1 class="company" id="companyName">—</h1>
+      <div class="title">Uzupełnianie struktury organizacji</div>
+    </header>
+
+    <section class="card">
+      <div class="topbar">
+        <div class="rightActions">
+          <button class="btn" id="btnOpen">Wybierz plik</button>
+          <input type="file" id="fileInput" accept="application/json,.json" />
+        </div>
+
+        <div class="rightActions">
+          <span class="pill">Liczba zmian: <strong id="changesCount">0</strong></span>
+          <button class="btn primary" id="btnSave" disabled title="Najpierw wprowadź zmianę.">Zapisz zmiany</button>
+        </div>
+      </div>
+
+      <div id="orgBlock" style="display:none;">
+        <div class="smallGrid">
+          <div class="miniCard">
+            <h3>Informacje</h3>
+            <div class="metrics" id="metricsGrid"></div>
+          </div>
+
+          <div class="miniCard">
+            <h3>Błędy</h3>
+            <div class="errors" id="errorsGrid"></div>
+          </div>
+        </div>
+
+        <div class="filters">
+          <div class="field">
+            <label>Dział (filtr)</label>
+            <select id="filterDept"></select>
+          </div>
+          <div class="field">
+            <label>Raportuje do (filtr)</label>
+            <select id="filterManager"></select>
+          </div>
+          <div class="field">
+            <label>Szukaj (imię/nazwisko)</label>
+            <input type="text" id="filterSearch" placeholder="np. Kowalska" />
+          </div>
+          <div class="toggle">
+            <input type="checkbox" id="filterMissingOnly" />
+            <label for="filterMissingOnly" style="cursor:pointer;">Tylko braki</label>
+          </div>
+        </div>
+
+        <div class="tableWrap" id="changesWrap" style="display:none;">
+          <table id="changesTable">
+            <thead>
+              <tr>
+                <th>Osoba</th>
+                <th>Co zmieniono</th>
+                <th>Było</th>
+                <th>Jest</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="tableWrap">
+          <table id="peopleTable">
+            <thead>
+              <tr>
+                <th data-sort="missing">Braki <span class="sort" id="sortIcon-missing">↓</span></th>
+                <th data-sort="first">Imię <span class="sort" id="sortIcon-first">↕</span></th>
+                <th data-sort="last">Nazwisko <span class="sort" id="sortIcon-last">↕</span></th>
+                <th data-sort="dept">Dział <span class="sort" id="sortIcon-dept">↕</span></th>
+                <th data-sort="manager">Raportuje do <span class="sort" id="sortIcon-manager">↕</span></th>
+                <th data-sort="date">Data dołączenia <span class="sort" id="sortIcon-date">↕</span></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="emptyState" class="empty">
+        Wybierz plik, żeby rozpocząć.
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // =========================
+    // Helpers
+    // =========================
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const safeStr = (v) => (v === null || v === undefined) ? "" : String(v);
+    const deepClone = (o) => JSON.parse(JSON.stringify(o));
+
+    function escapeHtml(s){
+      return safeStr(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function pad2(n){ return String(n).padStart(2,"0"); }
+    function dateToDateOnly(d){
+      const y = d.getFullYear();
+      const m = pad2(d.getMonth()+1);
+      const dd = pad2(d.getDate());
+      return `${y}-${m}-${dd}`;
+    }
+    function dateOnlyToDate(dateOnly){
+      if(!dateOnly) return null;
+      const d = new Date(dateOnly + "T00:00:00");
+      if(Number.isNaN(d.getTime())) return null;
+      d.setHours(0,0,0,0);
+      return d;
+    }
+
+    function normalizeDepartments(depts){
+      const map = new Map();
+      for(const d of (depts || [])){
+        const id = safeStr(d.department_id).trim();
+        const name = safeStr(d.name).trim();
+        if(!id && !name) continue;
+        const key = id || name;
+        if(!map.has(key)) map.set(key, { department_id: id, name });
+      }
+      return Array.from(map.values()).sort((a,b)=> a.name.localeCompare(b.name,"pl"));
+    }
+
+    function firstName(u){ return safeStr(u.first_name).trim(); }
+    function lastName(u){ return safeStr(u.last_name).trim(); }
+    function fullName(u){
+      const fn = firstName(u);
+      const ln = lastName(u);
+      const f = `${fn} ${ln}`.trim();
+      return f || "Brak imienia i nazwiska";
+    }
+
+    function deptName(u){ return safeStr(u.reported_department_name).trim(); }
+    function deptId(u){ return safeStr(u.reported_department_id).trim(); }
+
+    function personWithDept(u){
+      const d = deptName(u);
+      return d ? `${fullName(u)} (${d})` : `${fullName(u)} (brak działu)`;
+    }
+
+    // =========================
+    // Tenure years (u.tenure_years) handling
+    // - Tenure is given as a number of years, possibly fractional: 0.2 => 2.4 months => ~2 miesiące
+    // =========================
+    function tenureYearsValue(u){
+      const v = Number(u.tenure_years);
+      if(!Number.isFinite(v)) return 0;
+      return v;
+    }
+
+    function formatTenureYearsToShort(yearsFloat){
+      const v = Number(yearsFloat);
+      if(!Number.isFinite(v) || v <= 0) return "—";
+      let totalMonths = Math.round(v * 12);        // 0.2 => 2
+      let years = Math.floor(totalMonths / 12);
+      let months = totalMonths % 12;
+      if(years < 0) years = 0;
+      if(months < 0) months = 0;
+      return `${years}r ${months}m`;
+    }
+
+    // Compute "Data dołączenia" from tenure_years by subtracting months from today.
+    function joinDateOnlyFromTenureYears(u){
+      const v = tenureYearsValue(u);
+      if(v <= 0) return ""; // traktujemy 0 jako brak daty dołączenia do uzupełnienia
+      const totalMonths = Math.round(v * 12);
+      const d = new Date();
+      d.setHours(0,0,0,0);
+      d.setMonth(d.getMonth() - totalMonths);
+      return dateToDateOnly(d);
+    }
+
+    // When user edits join date => update tenure_years (months difference / 12)
+    function setTenureYearsFromJoinDateOnly(u, dateOnly){
+      const d = dateOnlyToDate(dateOnly);
+      if(!d){
+        u.tenure_years = 0.0;
+        return;
+      }
+      const now = new Date();
+      now.setHours(0,0,0,0);
+
+      let months = (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
+      if(now.getDate() < d.getDate()) months -= 1;
+      if(months < 0) months = 0;
+
+      const years = months / 12;
+      u.tenure_years = Number(years.toFixed(2));
+    }
+
+    function tenureBadge(u){
+      return formatTenureYearsToShort(tenureYearsValue(u));
+    }
+
+    // =========================
+    // State
+    // =========================
+    let originalReport = null;
+    let report = null;
+    let departments = [];
+    let usersById = new Map();
+    let loadedFileName = "";
+    let changes = new Map(); // `${userId}:${field}` -> { userId, person, what, from, to }
+    let dirtyUsers = new Set();
+    let sortState = { key: "missing", dir: "desc" };
+
+    // =========================
+    // Validation / "braki"
+    // =========================
+    function managerState(u){
+      const mgrId = safeStr(u.reports_to_user_id).trim();
+      if(!mgrId) return "MISSING";
+      if(mgrId === u.id) return "SELF";
+      if(!usersById.has(mgrId)) return "UNKNOWN";
+      return "OK";
+    }
+
+    function hasDept(u){ return !!(deptId(u) || deptName(u)); }
+    function hasJoinDate(u){ return tenureYearsValue(u) > 0; } // 0 traktujemy jako brak do uzupełnienia
+
+    function missingScore(u){
+      let s = 0;
+      if(!firstName(u)) s++;
+      if(!lastName(u)) s++;
+      if(!hasDept(u)) s++;
+
+      const ms = managerState(u);
+      if(ms !== "OK") s++;
+
+      if(!hasJoinDate(u)) s++;
+
+      return s; // im więcej, tym wyżej
+    }
+
+    function missingBadge(u){
+      const m = missingScore(u);
+      if(m === 0) return "✅ 0";
+      if(m === 1) return "🟡 1";
+      if(m === 2) return "🟠 2";
+      return "🔴 " + m;
+    }
+
+    // =========================
+    // Metrics & errors blocks
+    // =========================
+    function getAllPeople(){
+      return report.people || report.users || [];
+    }
+
+    function uniqueDepartmentNames(){
+      const set = new Set();
+      for(const d of (departments || [])){
+        if(d?.name) set.add(d.name);
+      }
+      for(const u of getAllPeople()){
+        const dn = deptName(u);
+        if(dn) set.add(dn);
+      }
+      return Array.from(set.values()).sort((a,b)=> a.localeCompare(b,"pl"));
+    }
+
+    function countLeadersAndTeams(){
+      const people = getAllPeople();
+      const directReportsByMgr = new Map();
+
+      for(const u of people){
+        const mgrId = safeStr(u.reports_to_user_id).trim();
+        if(!mgrId) continue;
+        if(mgrId === u.id) continue;
+        if(!directReportsByMgr.has(mgrId)) directReportsByMgr.set(mgrId, 0);
+        directReportsByMgr.set(mgrId, directReportsByMgr.get(mgrId) + 1);
+      }
+
+      // leaders: only those managers that exist as people
+      let leaders = 0;
+      for(const mgrId of directReportsByMgr.keys()){
+        if(usersById.has(mgrId)) leaders++;
+      }
+
+      // teams: number of unique reporting groups (valid managers)
+      const teams = leaders;
+
+      return { leaders, teams };
+    }
+
+    function computeErrors(){
+      const people = getAllPeople();
+
+      let missingFirst = 0;
+      let missingLast = 0;
+      let missingBoth = 0;
+      let missingDept = 0;
+
+      let mgrMissing = 0;
+      let mgrSelf = 0;
+      let mgrUnknown = 0;
+
+      let missingJoin = 0;
+
+      for(const u of people){
+        const fn = firstName(u);
+        const ln = lastName(u);
+        if(!fn) missingFirst++;
+        if(!ln) missingLast++;
+        if(!fn && !ln) missingBoth++;
+
+        if(!hasDept(u)) missingDept++;
+
+        const ms = managerState(u);
+        if(ms === "MISSING") mgrMissing++;
+        if(ms === "SELF") mgrSelf++;
+        if(ms === "UNKNOWN") mgrUnknown++;
+
+        if(!hasJoinDate(u)) missingJoin++;
+      }
+
+      return {
+        missingFirst, missingLast, missingBoth,
+        missingDept, mgrMissing, mgrSelf, mgrUnknown,
+        missingJoin
+      };
+    }
+
+    function renderMetricsAndErrors(){
+      const org = report.organization || {};
+      const people = getAllPeople();
+      const uniqDepts = uniqueDepartmentNames();
+      const { leaders, teams } = countLeadersAndTeams();
+      const errs = computeErrors();
+
+      const metrics = [
+        { k: "Liczba osób", v: people.length },
+        { k: "Osób zarejestrowanych", v: safeStr(org.registered_users) || people.length },
+        { k: "Liczba licencji", v: safeStr(org.licenses_assigned) || "—" },
+        { k: "Działy (unikalne)", v: uniqDepts.length },
+        { k: "Liderów", v: leaders },
+        { k: "Zespołów", v: teams }
+      ];
+
+      const mg = $("#metricsGrid");
+      mg.innerHTML = metrics.map(m => `
+        <div class="metric">
+          <div class="k">${escapeHtml(m.k)}</div>
+          <div class="v">${escapeHtml(m.v)}</div>
+        </div>
+      `).join("");
+
+      const eg = $("#errorsGrid");
+      const rows = [
+        { label: "Brak imienia i nazwiska", value: errs.missingBoth },
+        { label: "Brak imienia", value: errs.missingFirst },
+        { label: "Brak nazwiska", value: errs.missingLast },
+        { label: "Brak działu", value: errs.missingDept },
+        { label: "Brak oznaczenia przełożonego", value: errs.mgrMissing },
+        { label: "Raportowanie do siebie samego", value: errs.mgrSelf },
+        { label: "Przełożony nie istnieje na liście", value: errs.mgrUnknown },
+        { label: "Brak daty dołączenia", value: errs.missingJoin }
+      ];
+
+      eg.innerHTML = rows.map(r => `
+        <div class="errRow">
+          <div class="left">${escapeHtml(r.label)}</div>
+          <div class="right">${escapeHtml(r.value)}</div>
+        </div>
+      `).join("");
+
+      // Company name in header
+      const name = safeStr(org.name).trim() || "—";
+      $("#companyName").textContent = name;
+    }
+
+    // =========================
+    // Filters
+    // =========================
+    function buildFilters(){
+      const deptSel = $("#filterDept");
+      deptSel.innerHTML = "";
+      deptSel.append(new Option("Wszystkie działy", "__ALL__"));
+      deptSel.append(new Option("(brak działu)", "__EMPTY__"));
+
+      // list from departments registry
+      for(const d of departments){
+        deptSel.append(new Option(d.name, d.department_id || d.name));
+      }
+
+      const mgrSel = $("#filterManager");
+      mgrSel.innerHTML = "";
+      mgrSel.append(new Option("Wszyscy przełożeni", "__ALL__"));
+      mgrSel.append(new Option("(brak / błąd)", "__EMPTY__"));
+
+      const opts = getAllPeople()
+        .map(u => ({ id: u.id, label: personWithDept(u) }))
+        .sort((a,b)=> a.label.localeCompare(b.label,"pl"));
+
+      for(const o of opts){
+        mgrSel.append(new Option(o.label, o.id));
+      }
+    }
+
+    function applyFiltersAndSort(people){
+      const deptVal = $("#filterDept").value;
+      const mgrVal = $("#filterManager").value;
+      const q = $("#filterSearch").value.trim().toLowerCase();
+      const missingOnly = $("#filterMissingOnly").checked;
+
+      let list = [...people];
+
+      if(deptVal && deptVal !== "__ALL__"){
+        if(deptVal === "__EMPTY__"){
+          list = list.filter(u => !hasDept(u));
+        } else {
+          list = list.filter(u => deptId(u) === deptVal || deptName(u) === deptVal);
+        }
+      }
+
+      if(mgrVal && mgrVal !== "__ALL__"){
+        if(mgrVal === "__EMPTY__"){
+          list = list.filter(u => managerState(u) !== "OK");
+        } else {
+          list = list.filter(u => safeStr(u.reports_to_user_id).trim() === mgrVal);
+        }
+      }
+
+      if(q){
+        list = list.filter(u => {
+          const fn = firstName(u).toLowerCase();
+          const ln = lastName(u).toLowerCase();
+          const dep = deptName(u).toLowerCase();
+          const mgr = usersById.get(safeStr(u.reports_to_user_id).trim());
+          const mgrName = mgr ? fullName(mgr).toLowerCase() : "";
+          return fn.includes(q) || ln.includes(q) || dep.includes(q) || mgrName.includes(q);
+        });
+      }
+
+      if(missingOnly){
+        list = list.filter(u => missingScore(u) > 0);
+      }
+
+      const dir = sortState.dir === "asc" ? 1 : -1;
+      const cmpText = (a,b) => safeStr(a).localeCompare(safeStr(b),"pl");
+
+      list.sort((a,b) => {
+        switch(sortState.key){
+          case "missing": {
+            const sa = missingScore(a), sb = missingScore(b);
+            if(sa !== sb) return (sa - sb) * dir;
+            const ln = cmpText(lastName(a), lastName(b));
+            if(ln !== 0) return ln;
+            return cmpText(firstName(a), firstName(b));
+          }
+          case "first": return cmpText(firstName(a), firstName(b)) * dir;
+          case "last":  return cmpText(lastName(a), lastName(b)) * dir;
+          case "dept":  return cmpText(deptName(a), deptName(b)) * dir;
+          case "manager": {
+            const ma = usersById.get(safeStr(a.reports_to_user_id).trim());
+            const mb = usersById.get(safeStr(b.reports_to_user_id).trim());
+            return cmpText(ma ? personWithDept(ma) : "", mb ? personWithDept(mb) : "") * dir;
+          }
+          case "date": {
+            // sort by computed join date from tenure_years; empty goes first if asc, last if desc (natural cmp handles)
+            const da = joinDateOnlyFromTenureYears(a);
+            const db = joinDateOnlyFromTenureYears(b);
+            return cmpText(da, db) * dir;
+          }
+          default: return 0;
+        }
+      });
+
+      return list;
+    }
+
+    // =========================
+    // Rendering (people + changes)
+    // =========================
+    function setChangesCount(){
+      const c = changes.size;
+      $("#changesCount").textContent = String(c);
+      const disabled = c === 0;
+      $("#btnSave").disabled = disabled;
+      $("#btnSave").title = disabled ? "Najpierw wprowadź zmianę." : "Zapisze plik z wprowadzonymi zmianami.";
+      $("#changesWrap").style.display = disabled ? "none" : "block";
+    }
+
+    function rebuildMaps(){
+      usersById = new Map();
+      for(const u of getAllPeople()) usersById.set(u.id, u);
+      departments = normalizeDepartments(report.departments || []);
+    }
+
+    function renderPeople(){
+      const tbody = $("#peopleTable tbody");
+      tbody.innerHTML = "";
+
+      const people = getAllPeople();
+      const list = applyFiltersAndSort(people);
+
+      for(const u of list){
+        const tr = document.createElement("tr");
+        if(dirtyUsers.has(u.id)) tr.classList.add("changed");
+
+        // Braki
+        const tdMissing = document.createElement("td");
+        tdMissing.className = "nowrap";
+        tdMissing.textContent = missingBadge(u);
+        tr.appendChild(tdMissing);
+
+        // First name
+        const tdFirst = document.createElement("td");
+        const fn = firstName(u);
+        tdFirst.innerHTML = fn ? `<strong>${escapeHtml(fn)}</strong>` : `<span style="color:#ef4444;font-weight:900;">(brak)</span>`;
+        tr.appendChild(tdFirst);
+
+        // Last name
+        const tdLast = document.createElement("td");
+        const ln = lastName(u);
+        tdLast.innerHTML = ln ? `<strong>${escapeHtml(ln)}</strong>` : `<span style="color:#ef4444;font-weight:900;">(brak)</span>`;
+        tr.appendChild(tdLast);
+
+        // Department editable
+        const tdDept = document.createElement("td");
+        const selDept = document.createElement("select");
+        selDept.dataset.userId = u.id;
+        selDept.dataset.field = "department";
+        selDept.append(new Option("(brak działu)", "__EMPTY__"));
+        for(const d of departments){
+          selDept.append(new Option(d.name, d.department_id || d.name));
+        }
+
+        const curId = deptId(u);
+        const curName = deptName(u);
+        let val = "__EMPTY__";
+        if(curId){
+          val = curId;
+          if(!Array.from(selDept.options).some(o => o.value === curId)){
+            selDept.append(new Option(curName ? `${curName}` : "(nieznany dział)", curId));
+          }
+        } else if(curName){
+          const match = departments.find(d => d.name === curName);
+          if(match) val = match.department_id || match.name;
+          else{
+            selDept.append(new Option(curName, curName));
+            val = curName;
+          }
+        }
+        selDept.value = val;
+        selDept.addEventListener("change", onEditField);
+
+        tdDept.appendChild(selDept);
+        const deptMini = document.createElement("div");
+        deptMini.className = "mini";
+        deptMini.textContent = curName ? `Obecnie: ${curName}` : "Obecnie: brak";
+        tdDept.appendChild(deptMini);
+
+        tr.appendChild(tdDept);
+
+        // Manager editable
+        const tdMgr = document.createElement("td");
+        const selMgr = document.createElement("select");
+        selMgr.dataset.userId = u.id;
+        selMgr.dataset.field = "manager";
+        selMgr.append(new Option("(brak / błąd)", "__EMPTY__"));
+
+        const opts = getAllPeople()
+          .filter(x => x.id !== u.id)
+          .map(x => ({ id: x.id, label: personWithDept(x) }))
+          .sort((a,b)=> a.label.localeCompare(b.label,"pl"));
+        for(const o of opts){
+          selMgr.append(new Option(o.label, o.id));
+        }
+
+        const ms = managerState(u);
+        selMgr.value = (ms === "OK") ? safeStr(u.reports_to_user_id).trim() : "__EMPTY__";
+        selMgr.addEventListener("change", onEditField);
+
+        tdMgr.appendChild(selMgr);
+
+        const mgrId = safeStr(u.reports_to_user_id).trim();
+        const mgr = usersById.get(mgrId);
+        const mgrText =
+          ms === "OK" ? `Obecnie: ${personWithDept(mgr)}`
+          : (ms === "SELF" ? "Obecnie: błąd (raportuje do siebie)" :
+             (ms === "UNKNOWN" ? "Obecnie: błąd (przełożony nie istnieje)" :
+              "Obecnie: brak"));
+
+        const mgrMini = document.createElement("div");
+        mgrMini.className = "mini";
+        mgrMini.textContent = mgrText;
+        tdMgr.appendChild(mgrMini);
+
+        tr.appendChild(tdMgr);
+
+        // Join date editable (from tenure_years)
+        const tdDate = document.createElement("td");
+        const wrap = document.createElement("div");
+        wrap.className = "inline";
+
+        const dateInput = document.createElement("input");
+        dateInput.type = "date";
+        dateInput.value = joinDateOnlyFromTenureYears(u) || "";
+        dateInput.dataset.userId = u.id;
+        dateInput.dataset.field = "join_date";
+        dateInput.addEventListener("change", onEditField);
+
+        const calBtn = document.createElement("button");
+        calBtn.className = "calendarBtn";
+        calBtn.type = "button";
+        calBtn.textContent = "📅";
+        calBtn.title = "Wybierz datę";
+        calBtn.addEventListener("click", () => {
+          dateInput.focus();
+          if (dateInput.showPicker) dateInput.showPicker();
+        });
+
+        const badge = document.createElement("span");
+        badge.className = "tenureBadge";
+        badge.textContent = `(${tenureBadge(u)})`;
+
+        wrap.appendChild(dateInput);
+        wrap.appendChild(calBtn);
+        wrap.appendChild(badge);
+
+        tdDate.appendChild(wrap);
+
+        tr.appendChild(tdDate);
+
+        tbody.appendChild(tr);
+      }
+    }
+
+    function renderChanges(){
+      const wrap = $("#changesWrap");
+      const tbody = $("#changesTable tbody");
+      tbody.innerHTML = "";
+
+      if(changes.size === 0){
+        wrap.style.display = "none";
+        return;
+      }
+      wrap.style.display = "block";
+
+      // ensure labels are always fresh (dept changes affect labels)
+      const rows = Array.from(changes.values()).map(r => {
+        const u = usersById.get(r.userId);
+        const person = u ? personWithDept(u) : r.person;
+        return { ...r, person };
+      }).sort((a,b)=> {
+        const u = a.person.localeCompare(b.person,"pl");
+        if(u !== 0) return u;
+        return a.what.localeCompare(b.what,"pl");
+      });
+
+      for(const r of rows){
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(r.person)}</strong></td>
+          <td class="nowrap">${escapeHtml(r.what)}</td>
+          <td>${escapeHtml(r.from || "(brak)")}</td>
+          <td>${escapeHtml(r.to || "(brak)")}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function renderAll(){
+      renderMetricsAndErrors();
+      buildFilters();
+      renderPeople();
+      renderChanges();
+      setChangesCount();
+    }
+
+    // =========================
+    // Change tracking (human-readable)
+    // =========================
+    function getOriginalUserById(userId){
+      const people = originalReport?.people || originalReport?.users || [];
+      return people.find(u => u.id === userId) || null;
+    }
+
+    function humanDeptValue(u){
+      return deptName(u) || "(brak działu)";
+    }
+
+    function humanManagerValue(u){
+      const ms = managerState(u);
+      if(ms === "MISSING") return "(brak)";
+      if(ms === "SELF") return "(błąd: raportuje do siebie)";
+      if(ms === "UNKNOWN") return "(błąd: przełożony nie istnieje)";
+      const mgr = usersById.get(safeStr(u.reports_to_user_id).trim());
+      return mgr ? personWithDept(mgr) : "(błąd)";
+    }
+
+    function humanJoinValue(u){
+      const d = joinDateOnlyFromTenureYears(u);
+      const t = tenureBadge(u);
+      return d ? `${d} (${t})` : "(brak)";
+    }
+
+    function markChange(userId, fieldKey, what, fromVal, toVal){
+      const key = `${userId}:${fieldKey}`;
+      const u = usersById.get(userId);
+      const person = u ? personWithDept(u) : "—";
+
+      const f = safeStr(fromVal).trim();
+      const t = safeStr(toVal).trim();
+
+      if(f === t){
+        changes.delete(key);
+      } else {
+        changes.set(key, { userId, person, what, from: f, to: t });
+      }
+
+      const hasAny = Array.from(changes.keys()).some(k => k.startsWith(userId + ":"));
+      if(hasAny) dirtyUsers.add(userId); else dirtyUsers.delete(userId);
+
+      setChangesCount();
+      renderChanges();
+    }
+
+    function onEditField(e){
+      const el = e.target;
+      const userId = el.dataset.userId;
+      const field = el.dataset.field;
+      const u = usersById.get(userId);
+      if(!u) return;
+
+      const orig = getOriginalUserById(userId);
+
+      if(field === "department"){
+        const before = orig ? (orig.reported_department_name ? orig.reported_department_name : "(brak działu)") : "(brak działu)";
+        const selected = el.value;
+
+        if(selected === "__EMPTY__"){
+          u.reported_department_id = "";
+          u.reported_department_name = "";
+        } else {
+          const d = departments.find(x => (x.department_id || x.name) === selected) || null;
+          u.reported_department_id = d ? (d.department_id || "") : selected;
+          u.reported_department_name = d ? d.name : selected;
+        }
+
+        const after = humanDeptValue(u);
+        markChange(userId, "department", "Dział", before, after);
+
+        // update everything that depends on departments/names
+        renderAll();
+        return;
+      }
+
+      if(field === "manager"){
+        const before = orig ? (() => {
+          // compute from original with current maps, but using its raw value
+          const tmp = deepClone(u);
+          tmp.reports_to_user_id = orig.reports_to_user_id;
+          return humanManagerValue(tmp);
+        })() : "(brak)";
+
+        const selected = el.value;
+        if(selected === "__EMPTY__"){
+          u.reports_to_user_id = null;
+        } else {
+          u.reports_to_user_id = selected;
+        }
+
+        const after = humanManagerValue(u);
+        markChange(userId, "manager", "Raportuje do", before, after);
+
+        renderAll();
+        return;
+      }
+
+      if(field === "join_date"){
+        const before = orig ? (() => {
+          const tmp = deepClone(orig);
+          // original might have tenure_years; show its derived date
+          return humanJoinValue(tmp);
+        })() : "(brak)";
+
+        const dateOnly = el.value || "";
+        setTenureYearsFromJoinDateOnly(u, dateOnly);
+
+        const after = humanJoinValue(u);
+        markChange(userId, "join_date", "Data dołączenia", before, after);
+
+        renderAll();
+        return;
+      }
+    }
+
+    // =========================
+    // Sorting
+    // =========================
+    function setSort(key){
+      if(sortState.key === key){
+        sortState.dir = (sortState.dir === "asc") ? "desc" : "asc";
+      } else {
+        sortState.key = key;
+        sortState.dir = (key === "missing") ? "desc" : "asc";
+      }
+
+      const keys = ["missing","first","last","dept","manager","date"];
+      for(const k of keys){
+        const el = $("#sortIcon-" + k);
+        if(!el) continue;
+        if(sortState.key !== k) el.textContent = "↕";
+        else el.textContent = (sortState.dir === "asc" ? "↑" : "↓");
+      }
+
+      renderPeople();
+    }
+
+    function wireSorting(){
+      const ths = Array.from($("#peopleTable thead").querySelectorAll("th[data-sort]"));
+      for(const th of ths){
+        th.addEventListener("click", () => setSort(th.dataset.sort));
+      }
+      sortState = { key:"missing", dir:"desc" };
+      $("#sortIcon-missing").textContent = "↓";
+    }
+
+    // =========================
+    // Filters wiring
+    // =========================
+    function wireFilters(){
+      $("#filterDept").addEventListener("change", renderPeople);
+      $("#filterManager").addEventListener("change", renderPeople);
+      $("#filterMissingOnly").addEventListener("change", renderPeople);
+      $("#filterSearch").addEventListener("input", renderPeople);
+    }
+
+    // =========================
+    // Load / Save
+    // =========================
+    function downloadReport(){
+      if(!report) return;
+      if(changes.size === 0) return;
+
+      if(!Array.isArray(report.people) && Array.isArray(report.users)){
+        report.people = report.users;
+        delete report.users;
+      }
+
+      const base = loadedFileName ? loadedFileName.replace(/\.json$/i, "") : "dane";
+      const outName = `${base}.updated.json`;
+
+      const json = JSON.stringify(report, null, 2);
+      const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = outName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function readFile(file){
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result || ""));
+        r.onerror = reject;
+        r.readAsText(file);
+      });
+    }
+
+    async function onFileSelected(file){
+      if(!file) return;
+      const text = await readFile(file);
+      const obj = JSON.parse(text);
+
+      if(!Array.isArray(obj.people) && Array.isArray(obj.users)) obj.people = obj.users;
+
+      originalReport = deepClone(obj);
+      report = deepClone(obj);
+      loadedFileName = file.name || "";
+
+      changes = new Map();
+      dirtyUsers = new Set();
+      sortState = { key: "missing", dir: "desc" };
+
+      rebuildMaps();
+
+      $("#orgBlock").style.display = "block";
+      $("#emptyState").style.display = "none";
+
+      renderAll();
+      wireSorting();
+      setChangesCount();
+    }
+
+    // =========================
+    // Init
+    // =========================
+    $("#btnSave").addEventListener("click", downloadReport);
+
+    $("#btnOpen").addEventListener("click", () => $("#fileInput").click());
+    $("#fileInput").addEventListener("change", async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if(file) await onFileSelected(file);
+      e.target.value = "";
+    });
+
+    wireFilters();
+    wireSorting();
+    setChangesCount();
+  </script>
+</body>
+</html>
+	
