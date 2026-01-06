@@ -101,11 +101,17 @@ function history_path(string $dataPath): string
 function load_history(string $dataPath): array
 {
     $path = history_path($dataPath);
-    if (!file_exists($path)) {
+    $legacyPath = dirname($dataPath) . '/' . pathinfo($dataPath, PATHINFO_FILENAME) . '.changes.json';
+    $target = $path;
+    if (!file_exists($target) && file_exists($legacyPath)) {
+        $target = $legacyPath;
+    }
+
+    if (!file_exists($target)) {
         return [];
     }
 
-    $raw = file_get_contents($path);
+    $raw = file_get_contents($target);
     if ($raw === false) {
         return [];
     }

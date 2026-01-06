@@ -663,7 +663,7 @@ function renderHistory() {
   }
 
   ui.historyEmpty.classList.add('hidden');
-  const visible = historyExpanded ? historyEntries : historyEntries.slice(0, 10);
+  const visible = historyExpanded ? historyEntries : historyEntries.slice(0, 5);
 
   ui.historyList.innerHTML = visible
     .map((entry) => {
@@ -687,7 +687,7 @@ function renderHistory() {
     })
     .join('');
 
-  if (historyEntries.length > 10) {
+  if (historyEntries.length > 5) {
     ui.historyToggle.classList.remove('hidden');
     ui.historyToggleBtn.textContent = historyExpanded ? 'Zwiń historię' : 'Pokaż całą historię';
   } else {
