@@ -5,6 +5,7 @@ const safeStr = (v) => (v === null || v === undefined ? '' : String(v));
 const deepClone = (o) => JSON.parse(JSON.stringify(o));
 
 const SESSION_TIMEOUT_MS = 5 * 60 * 1000;
+const APP_VERSION = '1.3';
 
 const ui = {
   loginView: $('#loginView'),
@@ -38,6 +39,12 @@ const ui = {
   filterSearch: $('#filterSearch'),
   filterMissingOnly: $('#filterMissingOnly'),
   changesWrap: $('#changesWrap'),
+  deleteModal: $('#deleteModal'),
+  deleteModalBody: $('#deleteModalBody'),
+  deleteModalConfirm: $('#deleteModalConfirm'),
+  deleteModalCancel: $('#deleteModalCancel'),
+  deleteModalCheckbox: $('#deleteModalConfirmCheckbox'),
+  appVersion: $('#appVersion'),
 };
 
 let originalReport = null;
@@ -53,6 +60,7 @@ let lastActivityAt = Date.now();
 let sessionTimer = null;
 let autoLogoutInProgress = false;
 let orgChart = null;
+let pendingDeleteUserId = null;
 
 const api = {
   async post(path, body) {
@@ -627,6 +635,17 @@ function renderPeople() {
     tdDate.appendChild(wrap);
     tr.appendChild(tdDate);
 
+    const tdDelete = document.createElement('td');
+    tdDelete.className = 'nowrap';
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'icon-btn';
+    deleteBtn.textContent = '🗑️';
+    deleteBtn.title = 'Usuń osobę';
+    deleteBtn.addEventListener('click', () => openDeleteModal(u.id));
+    tdDelete.appendChild(deleteBtn);
+    tr.appendChild(tdDelete);
+
     tbody.appendChild(tr);
   }
 }
@@ -723,6 +742,43 @@ function renderAll() {
   renderHistory();
   if (orgChart) orgChart.render(getAllPeople(), departments, usersById);
   setChangesCount();
+}
+
+function openDeleteModal(userId) {
+  const u = usersById.get(userId);
+  if (!u) return;
+  pendingDeleteUserId = userId;
+  ui.deleteModalBody.textContent = `Czy na pewno chcesz usunąć osobę ${fullName(
+    u,
+  )}? Tej operacji nie można cofnąć.`;
+  ui.deleteModalCheckbox.checked = false;
+  ui.deleteModalConfirm.disabled = true;
+  ui.deleteModal.classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+  pendingDeleteUserId = null;
+  ui.deleteModal.classList.add('hidden');
+}
+
+function deleteUser(userId) {
+  if (!report || !report.people) return;
+  const u = usersById.get(userId);
+  if (!u) return;
+  report.people = report.people.filter((person) => person.id !== userId);
+  for (const key of Array.from(changes.keys())) {
+    if (key.startsWith(`${userId}:`)) changes.delete(key);
+  }
+  changes.set(`delete:${userId}`, {
+    userId,
+    person: personWithDept(u),
+    what: 'Usunięto osobę',
+    from: 'Na liście',
+    to: 'Usunięto',
+  });
+  dirtyUsers.delete(userId);
+  rebuildMaps();
+  renderAll();
 }
 
 function getOriginalUserById(userId) {
@@ -1034,6 +1090,25 @@ function wireActivityListeners() {
   });
 }
 
+function wireDeleteModal() {
+  if (!ui.deleteModal) return;
+  ui.deleteModalCheckbox.addEventListener('change', () => {
+    ui.deleteModalConfirm.disabled = !ui.deleteModalCheckbox.checked;
+  });
+  ui.deleteModalCancel.addEventListener('click', closeDeleteModal);
+  ui.deleteModalConfirm.addEventListener('click', () => {
+    if (!pendingDeleteUserId || !ui.deleteModalCheckbox.checked) return;
+    deleteUser(pendingDeleteUserId);
+    closeDeleteModal();
+  });
+  ui.deleteModal.addEventListener('click', (event) => {
+    const target = event.target;
+    if (target && target.dataset && target.dataset.modalClose) {
+      closeDeleteModal();
+    }
+  });
+}
+
 ui.loginForm.addEventListener('submit', handleLogin);
 ui.btnSave.addEventListener('click', handleSave);
 ui.btnLogout.addEventListener('click', handleLogout);
@@ -1045,6 +1120,7 @@ ui.historyToggleBtn.addEventListener('click', () => {
 wireFilters();
 wireSorting();
 wireActivityListeners();
+wireDeleteModal();
 if (ui.orgChart) {
   orgChart = new OrgChart({
     container: ui.orgChart,
@@ -1057,3 +1133,7 @@ if (ui.orgChart) {
 }
 resetState();
 showView('login');
+
+if (ui.appVersion) {
+  ui.appVersion.textContent = `Wersja ${APP_VERSION}`;
+}

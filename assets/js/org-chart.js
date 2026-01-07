@@ -141,6 +141,9 @@ export class OrgChart {
     this.dragging = false;
     this.lastPoint = null;
     this.tooltip = null;
+    this.contentSize = { width: 0, height: 0 };
+    this.minScale = 0.5;
+    this.maxScale = 3.5;
 
     this.bindControls();
   }
@@ -161,19 +164,18 @@ export class OrgChart {
   }
 
   resetView() {
-    this.scale = 1;
-    this.translate = { x: 0, y: 0 };
-    this.applyTransform();
+    this.fitToView();
   }
 
   setScale(value) {
-    this.scale = Math.min(2.5, Math.max(0.5, value));
+    this.scale = Math.min(this.maxScale, Math.max(this.minScale, value));
     this.applyTransform();
   }
 
   toggleFullscreen() {
     if (!this.wrapper) return;
     this.wrapper.classList.toggle('fullscreen');
+    window.setTimeout(() => this.fitToView(), 0);
   }
 
   applyTransform() {
@@ -182,6 +184,24 @@ export class OrgChart {
       'transform',
       `translate(${this.translate.x}, ${this.translate.y}) scale(${this.scale})`,
     );
+  }
+
+  fitToView() {
+    if (!this.graphGroup || !this.container) return;
+    const { width, height } = this.contentSize;
+    if (!width || !height) return;
+
+    const viewWidth = this.container.clientWidth || width;
+    const viewHeight = this.container.clientHeight || height;
+    const scale = viewHeight / height;
+    this.scale = Math.min(this.maxScale, Math.max(this.minScale, scale));
+
+    const scaledWidth = width * this.scale;
+    const scaledHeight = height * this.scale;
+    const offsetX = (viewWidth - scaledWidth) / 2;
+    const offsetY = (viewHeight - scaledHeight) / 2;
+    this.translate = { x: offsetX, y: offsetY };
+    this.applyTransform();
   }
 
   render(people, departments, usersById = new Map()) {
@@ -202,14 +222,16 @@ export class OrgChart {
     const margin = 60;
     const width = (maxX + 1) * spacingX + margin * 2;
     const height = (maxDepth + 1) * spacingY + margin * 2;
+    this.contentSize = { width, height };
 
     const svg = createSvgElement('svg');
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    svg.setAttribute('width', String(width));
+    svg.setAttribute('height', String(height));
 
     const group = createSvgElement('g');
     svg.appendChild(group);
     this.graphGroup = group;
-    this.resetView();
 
     for (const node of roots) {
       this.drawConnections(node, positions, group, spacingX, spacingY, margin);
@@ -247,6 +269,7 @@ export class OrgChart {
 
     this.container.appendChild(svg);
     this.setupPan(svg);
+    this.fitToView();
   }
 
   buildTooltip(person, directCount, usersById) {

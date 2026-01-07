@@ -127,6 +127,7 @@ declare(strict_types=1);
                 <th data-sort="dept">Dział <span class="sort" id="sortIcon-dept">↕</span></th>
                 <th data-sort="manager">Raportuje do <span class="sort" id="sortIcon-manager">↕</span></th>
                 <th data-sort="date">Data dołączenia <span class="sort" id="sortIcon-date">↕</span></th>
+                <th>Usuń</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -148,6 +149,26 @@ declare(strict_types=1);
 
       <div id="emptyState" class="empty">Brak danych do wyświetlenia.</div>
     </section>
+  </div>
+
+  <div class="app-version" id="appVersion"></div>
+
+  <div class="modal hidden" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+    <div class="modal-backdrop" data-modal-close="true"></div>
+    <div class="modal-card">
+      <h3 id="deleteModalTitle">Potwierdź usunięcie osoby</h3>
+      <p id="deleteModalBody">
+        Czy na pewno chcesz usunąć tę osobę? Tej operacji nie można cofnąć.
+      </p>
+      <div class="modal-checkbox">
+        <input type="checkbox" id="deleteModalConfirmCheckbox" />
+        <label for="deleteModalConfirmCheckbox">Tak, usuwam</label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" type="button" id="deleteModalCancel">Anuluj</button>
+        <button class="btn primary" type="button" id="deleteModalConfirm" disabled>Usuń osobę</button>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="assets/js/app.js"></script>
