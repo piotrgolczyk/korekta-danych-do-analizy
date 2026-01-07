@@ -71,6 +71,19 @@ declare(strict_types=1);
           </div>
         </div>
 
+        <div class="mini-card wide-card">
+          <h3>Struktura organizacyjna</h3>
+          <div class="org-chart-wrapper" id="orgChartWrapper">
+            <div id="orgChart" class="org-chart" aria-label="Drzewo organizacji"></div>
+            <div class="org-chart-controls">
+              <button class="btn" type="button" id="orgChartZoomOut">−</button>
+              <button class="btn" type="button" id="orgChartZoomIn">+</button>
+              <button class="btn" type="button" id="orgChartReset">Reset</button>
+              <button class="btn" type="button" id="orgChartFullscreen">⤢</button>
+            </div>
+          </div>
+        </div>
+
         <div class="filters">
           <div class="field">
             <label>Dział (filtr)</label>
@@ -137,6 +150,6 @@ declare(strict_types=1);
     </section>
   </div>
 
-  <script src="assets/js/app.js"></script>
+  <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>

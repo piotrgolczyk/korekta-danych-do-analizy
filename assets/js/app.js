@@ -1,3 +1,5 @@
+import { OrgChart } from './org-chart.js';
+
 const $ = (sel, root = document) => root.querySelector(sel);
 const safeStr = (v) => (v === null || v === undefined ? '' : String(v));
 const deepClone = (o) => JSON.parse(JSON.stringify(o));
@@ -25,6 +27,12 @@ const ui = {
   historyToggle: $('#historyToggle'),
   historyToggleBtn: $('#historyToggleBtn'),
   historyToggleLabel: $('#historyToggleLabel'),
+  orgChart: $('#orgChart'),
+  orgChartWrapper: $('#orgChartWrapper'),
+  orgChartZoomIn: $('#orgChartZoomIn'),
+  orgChartZoomOut: $('#orgChartZoomOut'),
+  orgChartReset: $('#orgChartReset'),
+  orgChartFullscreen: $('#orgChartFullscreen'),
   filterDept: $('#filterDept'),
   filterManager: $('#filterManager'),
   filterSearch: $('#filterSearch'),
@@ -44,6 +52,7 @@ let historyExpanded = false;
 let lastActivityAt = Date.now();
 let sessionTimer = null;
 let autoLogoutInProgress = false;
+let orgChart = null;
 
 const api = {
   async post(path, body) {
@@ -117,6 +126,7 @@ function resetState() {
   ui.orgBlock.style.display = 'none';
   ui.emptyState.classList.remove('hidden');
   ui.changesWrap.style.display = 'none';
+  if (orgChart) orgChart.render([], []);
 }
 
 function normalizeDepartments(depts) {
@@ -711,6 +721,7 @@ function renderAll() {
   renderPeople();
   renderChanges();
   renderHistory();
+  if (orgChart) orgChart.render(getAllPeople(), departments, usersById);
   setChangesCount();
 }
 
@@ -1034,5 +1045,15 @@ ui.historyToggleBtn.addEventListener('click', () => {
 wireFilters();
 wireSorting();
 wireActivityListeners();
+if (ui.orgChart) {
+  orgChart = new OrgChart({
+    container: ui.orgChart,
+    wrapper: ui.orgChartWrapper,
+    zoomInButton: ui.orgChartZoomIn,
+    zoomOutButton: ui.orgChartZoomOut,
+    resetButton: ui.orgChartReset,
+    fullscreenButton: ui.orgChartFullscreen,
+  });
+}
 resetState();
 showView('login');
